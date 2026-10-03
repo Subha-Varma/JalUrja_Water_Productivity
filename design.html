@@ -1,0 +1,83 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>JalUrja: Data Model &amp; Service Blueprint</title>
+<style>
+:root{box-sizing:border-box;--bg:#f4faf2;--c:#fff;--t:#10301f;--m:#566c5f;--g:#1b7f4b;--b:#2b6cb0;--bd:#d5e5d8;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b14;--c:#172a1f;--t:#e6f2ea;--m:#9db5a6;--g:#4cc38a;--b:#6aa9f0;--bd:#2a4434}}
+:root[data-theme="dark"]{--bg:#0f1b14;--c:#172a1f;--t:#e6f2ea;--m:#9db5a6;--g:#4cc38a;--b:#6aa9f0;--bd:#2a4434}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--t);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:16px}h1{font-size:26px;margin:4px 0}h2{font-size:19px;color:var(--g);margin:28px 0 8px}
+.sub,.sm{color:var(--m);font-size:13.5px}.card{background:var(--c);border:1px solid var(--bd);border-radius:12px;padding:12px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:760px}td,th{padding:7px 8px;border:1px solid var(--bd);vertical-align:top;text-align:left}th{background:var(--bg)}td:first-child{font-weight:600;white-space:nowrap}
+.t2 table{min-width:0}pre.mermaid{background:var(--c);margin:0}
+</style></head><body><main>
+<h1>JalUrja: Data Model &amp; Service Blueprint</h1>
+<p class="sub">Design artifacts for the Challenge 01 submission.</p>
+
+<h2>1. Data model</h2>
+<div class="card"><pre class="mermaid">
+erDiagram
+ FPO ||--o{ HUB : operates
+ HUB ||--o{ PLOT : serves
+ FARMER ||--o{ PLOT : owns
+ PLOT ||--o{ SEASON : grows
+ SEASON ||--o{ RECOMMENDATION : receives
+ SEASON ||--o{ DELIVERY : gets
+ SEASON ||--o| HARVEST_RECORD : ends_with
+ HUB ||--o{ SENSOR_READING : logs
+ DELIVERY ||--o| INVOICE_LINE : billed_as
+ SEASON ||--o| WPC_CLAIM : earns
+ FARMER {
+  string farmer_id PK
+  string language
+  string upi_id
+ }
+ PLOT {
+  string plot_id PK
+  float area_ha
+  polygon boundary
+  string soil_class
+ }
+ SEASON {
+  string season_id PK
+  string crop
+  date sowing_date
+  float water_budget_m3
+ }
+ RECOMMENDATION {
+  datetime issued_at
+  string action
+  float volume_m3
+ }
+ DELIVERY {
+  datetime start_ts
+  float metered_m3
+  float solar_kwh
+ }
+ HARVEST_RECORD {
+  float output_kg
+  string source
+ }
+ WPC_CLAIM {
+  float kg_per_m3
+  float budget_use_pct
+  float credit_pct
+ }
+</pre></div>
+<p class="sm">Output (kg) comes from FPO weighbridge or aggregation receipts, so the productivity claim is verifiable rather than self-reported. Stack: Python/FastAPI, PostgreSQL + PostGIS for plot polygons.</p>
+<div class="card t2" style="margin-top:10px"><table><tr><th>Data source</th><th>How it arrives</th><th>Frequency</th><th>Used for</th></tr>
+<tr><td>Sentinel-2 imagery</td><td>Satellite API, per plot polygon</td><td>~5 days</td><td>Crop vigour, stress flag</td></tr>
+<tr><td>Weather and ET₀ forecast</td><td>Weather API</td><td>6-hourly</td><td>Crop water need, skip on rain</td></tr>
+<tr><td>Soil-moisture nodes</td><td>ESP32 + LoRa gateway at hub</td><td>15 min</td><td>Calibrating the water balance</td></tr>
+<tr><td>Flow meter + valve state</td><td>ESP32 + LoRa</td><td>Event-based</td><td>Verified litres, billing, WPC</td></tr>
+<tr><td>Pump power and solar yield</td><td>Controller</td><td>15 min</td><td>Energy per m³, cross-check of meter</td></tr>
+<tr><td>Harvest weight</td><td>FPO weighbridge entry</td><td>Per season</td><td>kg per m³ for WPC</td></tr></table></div>
+
+<h2>2. Service blueprint</h2>
+<div class="card"><table><tr><th></th><th>1 · Enrol</th><th>2 · Advise (daily)</th><th>3 · Deliver</th><th>4 · Verify</th><th>5 · Pay &amp; credit</th></tr>
+<tr><td>Farmer does</td><td>Joins via FPO; plot walked once</td><td>Hears or reads Irrigate / Wait / Rain</td><td>Confirms; plot is irrigated</td><td>Sees "25 m³ delivered ✔"</td><td>Pays monthly by UPI</td></tr>
+<tr><td>Visible service</td><td>FPO field agent, Marathi sign-up</td><td>App, SMS, IVR call</td><td>Hub attendant, drip lines</td><td>App Water screen, receipt</td><td>UPI link, bill with credit shown</td></tr>
+<tr><td>Behind the scenes</td><td>Plot polygon, sowing date, soil class stored</td><td>Engine runs water balance at 6 am</td><td>Valve opens for set volume, closes at limit</td><td>Meter event matched to command</td><td>Invoice, WPC claim computed</td></tr>
+<tr><td>Support systems</td><td>FPO membership, land record (7/12) check</td><td>Sentinel-2, weather APIs</td><td>Solar pump, tank, LoRa network</td><td>Pump-energy cross-check</td><td>Govt agriculture dept audits a sample and funds WPC</td></tr>
+<tr><td>Risk and control</td><td>Fake enrolment → land-record check</td><td>No signal → SMS / IVR fallback</td><td>Over-extraction → hard seasonal cap</td><td>Meter tampering → sealed meter, energy-vs-flow alarm</td><td>Disputes → farmer sees the meter log</td></tr></table></div>
+<p class="sm">Roles: <b>Farmer</b> pays and follows advice · <b>FPO / operator</b> owns the hub and collects tariff · <b>JalUrja</b> runs the engine and verification · <b>Government</b> pays WPC only on verified output per m³.</p>
+</main><script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script><script>mermaid.initialize({startOnLoad:true,theme:"neutral"});</script></body></html>

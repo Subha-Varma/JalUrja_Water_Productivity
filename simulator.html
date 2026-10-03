@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>JalUrja Simulator</title>
+<style>
+:root{box-sizing:border-box;--bg:#f4faf2;--c:#fff;--t:#10301f;--m:#5b7266;--g:#1b7f4b;--b:#2b6cb0;--r:#c0392b;--bd:#d5e5d8;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b14;--c:#172a1f;--t:#e6f2ea;--m:#9db5a6;--g:#4cc38a;--b:#6aa9f0;--r:#ef7d6f;--bd:#2a4434}}
+:root[data-theme="dark"]{--bg:#0f1b14;--c:#172a1f;--t:#e6f2ea;--m:#9db5a6;--g:#4cc38a;--b:#6aa9f0;--r:#ef7d6f;--bd:#2a4434}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--t);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:920px;margin:0 auto;padding:16px}
+h1{margin:0;font-size:26px}h2{font-size:16px;margin:22px 0 8px}
+.sub{color:var(--m);margin:2px 0 14px}
+.card{background:var(--c);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+label{display:block;font-size:13px;color:var(--m)}label b{color:var(--t);float:right}
+input[type=range]{width:100%;accent-color:var(--g)}
+.k{font-size:26px;font-weight:700}.k small{font-size:13px;font-weight:400;color:var(--m)}
+.l{font-size:12px;color:var(--m)}
+.bar{height:16px;border-radius:4px;margin:3px 0}
+.row{display:flex;justify-content:space-between;font-size:13px}
+.note{font-size:12.5px;color:var(--m);margin-top:18px}
+.g{color:var(--g)}.o{overflow-x:auto}
+</style></head><body><main>
+<h1>💧 JalUrja Simulator</h1>
+<p class="sub">Daily soil-water balance (FAO-56 style) for one tomato season: typical farmer schedule vs JalUrja. Averaged over 50 random weather seasons.</p>
+<div class="card"><div class="grid" id="inp"></div></div>
+<h2>Agronomy &amp; water (per hectare, per crop)</h2><div class="grid" id="kp"></div>
+<h2>Water used: farmer vs JalUrja</h2><div class="card" id="bars"></div>
+<h2>Cumulative irrigation, one sample season (mm)</h2><div class="card o"><svg id="ch" viewBox="0 0 600 200" width="100%" role="img" aria-label="Cumulative irrigation"></svg></div>
+<h2>Sensitivity: does the saving hold in dry and wet years?</h2><div class="card o" id="sens"></div>
+<h2>Money: farmer, operator, government</h2><div class="grid" id="eco"></div>
+<h2>Check one farm: Water Productivity Credit calculator</h2>
+<div class="card"><div class="grid"><div><label>Plot size (ha) <b id="v_fh">0.5</b></label><input type="range" id="fh" min="0.2" max="2" step="0.1" value="0.5"></div><div><label>Harvest (tonnes) <b id="v_fy">19.5</b></label><input type="range" id="fy" min="2" max="40" step="0.5" value="19.5"></div><div><label>Metered water used (m³) <b id="v_fw">2600</b></label><input type="range" id="fw" min="500" max="8000" step="100" value="2600"></div></div><div class="grid" id="fo" style="margin-top:10px"></div></div>
+<p class="note">All inputs are illustrative assumptions (soil TAW 100 mm, p=0.4, Ky=1.05, potential yield 40 t/ha, farmer application efficiency 65% vs drip 90%, 40 m total head, diesel 0.073 L/m³). The farmer baseline (furrow, every 9 days, 55 mm gross ≈ 7,700 m³/ha) should be confirmed with local survey data. Capex ₹1.1 lakh/ha ≈ drip ₹50k–1.5 lakh/ha + 5 HP solar pump ₹3–3.5 lakh shared across ~6 ha + tank/meters. Capital subsidy 45% is a blend: pump ≈ 30% central + ~10% state, drip 45–55% (PMKSY-PDMC). Both schemes are written for individual farmers, so FPO-hub eligibility must be confirmed. The diesel baseline applies to off-grid farms; for subsidised-grid farms the farmer-cost saving is much smaller. Replace them with Marathwada field data in the pilot. The WPC tiers are a proposed pilot policy, not an existing government rate. Capped at 40% here.</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const P=[['et0','Avg ET₀ (mm/day)',2,8,.1,4.5],['rain','Season rain (mm)',0,500,10,120],['int','Farmer irrigates every (days)',2,10,1,9],['dep','Farmer gross depth (mm)',20,80,5,55],['ha','Cluster size (ha)',10,200,10,50],['tar','Tariff (₹/m³)',1,8,.5,4],['capex','Capex (₹/ha, gross)',40000,200000,5000,110000],['sub','Capital subsidy (%)',0,80,5,45],['seas','Crops per year',1,2.5,.5,1.5],['dsl','Diesel (₹/L)',80,110,1,92],['price','Tomato price (₹/kg)',5,30,1,12]];
+$('inp').innerHTML=P.map(p=>`<div><label>${p[1]} <b id="v_${p[0]}">${p[5]}</b></label><input type="range" id="${p[0]}" min="${p[2]}" max="${p[3]}" step="${p[4]}" value="${p[5]}"></div>`).join('');
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const N=130,TAW=100,RAW=40,YP=40000;
+const kc=d=>d<25?.6:d<65?.6+.55*(d-25)/40:d<105?1.15:1.15-.35*(d-105)/25;
+function wx(seed,v){const r=rng(seed),rain=[],et=[],pr=Math.min(1,v.rain/12/N);for(let d=0;d<N;d++){rain.push(r()<pr?r()*24:0);et.push(v.et0*(.8+.4*r()))}
+const s=rain.reduce((a,b)=>a+b,0)||1;return{rain:rain.map(x=>x*v.rain/s),et}}
+function run(m,w,v){let Dr=20,I=0,ea=0,ec=0,cum=[];
+for(let d=0;d<N;d++){const c=kc(d)*w.et[d];let g=0,n=0;
+if(m=='b'){if(d%v.int==v.int-1){g=v.dep;n=g*.65}}
+else if(Dr>=.7*RAW&&!((w.rain[d+1]||0)>6)){n=Dr;g=n/.9}
+Dr-=w.rain[d]+n;if(Dr<0)Dr=0;
+const ks=Dr>RAW?Math.max(0,(TAW-Dr)/(TAW-RAW)):1,e=ks*c;Dr=Math.min(TAW,Dr+e);I+=g;ea+=e;ec+=c;cum.push(I)}
+return{I,ea,ec,cum,y:YP*Math.max(0,1-1.05*(1-ea/ec))}}
+const f=(x,d=0)=>x.toLocaleString('en-IN',{maximumFractionDigits:d});
+function agg(v){let bI=0,jI=0,bY=0,jY=0,bud=0,sv=[],S=50;
+for(let s=1;s<=S;s++){const w=wx(s,v),b=run('b',w,v),j=run('j',w,v);bI+=b.I;jI+=j.I;bY+=b.y;jY+=j.y;sv.push(1-j.I/b.I);bud+=1.1*(b.ec-.8*v.rain)/.9}
+sv.sort((a,b)=>a-b);return{bI:bI/S,jI:jI/S,bY:bY/S,jY:jY/S,bud:bud/S,lo:sv[2],hi:sv[S-3]}}
+let G=null;
+function wc(){if(!G)return;const ha=+$('fh').value,y=+$('fy').value*1000,w=+$('fw').value;$('v_fh').textContent=ha;$('v_fy').textContent=f(y/1000,1);$('v_fw').textContent=f(w);
+const wp=y/w,r=wp/G.bWP,u=w/(ha*G.bud);let p=r>=1.4?.4:r>=1.2?.3:r>=1?.15:0;let g='🟢 within budget';if(u>1.1){p=0;g='🔴 over 110%: no credit'}else if(u>1){p*=.5;g='🟠 100–110%: credit halved'}
+const bill=w*G.tar,cr=bill*p;const c=(a,b,d)=>`<div class="card"><div class="l">${a}</div><div class="k">${b}</div><div class="l">${d}</div></div>`;
+$('fo').innerHTML=c('Water productivity',`${f(wp,1)} <small>kg/m³</small>`,`${f(r,2)}× the diesel-farm baseline of ${f(G.bWP,1)}`)+c('Water budget used',`${f(u*100)}%`,g)+c('WPC credit',`${f(p*100)}%`,`₹${f(cr)} off a ₹${f(bill)} bill`)+c('Farmer pays',`₹${f(bill-cr)}`,'proposed pilot rule, not an existing rate')}
+function render(){const v={};P.forEach(p=>{v[p[0]]=+$(p[0]).value;$('v_'+p[0]).textContent=f(v[p[0]],1)});
+const A=agg(v),bm=A.bI*10,jm=A.jI*10,bY=A.bY,jY=A.jY,save=1-A.jI/A.bI,bWP=bY/bm,jWP=jY/jm,wr=jWP/bWP,use=A.jI/A.bud;
+let wpc=wr>=1.4?.4:wr>=1.2?.3:wr>=1?.15:0;if(use>1.1)wpc=0;else if(use>1)wpc*=.5;
+const farmB=bm*.073*v.dsl,farmJ=jm*v.tar*(1-wpc),incB=bY*v.price-farmB,incJ=jY*v.price-farmJ;
+const rev=jm*v.tar*v.seas,om=.08*v.capex+1500,net=v.capex*(1-v.sub/100),pay=net/(rev-om);
+const gov=jm*v.tar*wpc*v.seas*v.ha,saved=(bm-jm)*v.seas*v.ha,dL=bm*.073,co2=dL*2.68;
+const beT=(net/5+om)/(jm*v.seas),maxT=farmB/(jm*(1-wpc||1));
+G={bWP,bud:A.bud*10,tar:v.tar};wc();const kp=(a,b,c)=>`<div class="card"><div class="l">${a}</div><div class="k">${b}</div><div class="l">${c}</div></div>`;
+$('kp').innerHTML=kp('Water saved',`<span class="g">${f(save*100)}%</span>`,`range ${f(A.lo*100)}–${f(A.hi*100)}% across seasons`)+kp('Water productivity',`${f(jWP,1)} <small>kg/m³</small>`,`vs ${f(bWP,1)} baseline (×${f(wr,2)})`)+kp('Water intensity',`${f(jm/(jY/1000))} <small>m³/t</small>`,`vs ${f(bm/(bY/1000))} baseline`)+kp('Yield',`${f(jY/1000,1)} <small>t/ha</small>`,`vs ${f(bY/1000,1)} (${f((jY/bY-1)*100,1)}% from irrigation alone)`)+kp('Energy intensity',`${f(jm*.27/(jY/1000))} <small>kWh/t solar</small>`,`replaces ${f(dL/(bY/1000),1)} L diesel/t`)+kp('CO₂ avoided',`${f(co2)} <small>kg/ha</small>`,`diesel ${f(dL)} L/ha at 2.68 kg/L`)+kp('Water budget use',`${f(use*100)}%`,use>1.1?'🔴 no WPC':use>1?'🟠 reduced WPC':'🟢 within budget (req. +10% buffer)');
+const mx=Math.max(bm,jm);
+$('bars').innerHTML=`<div class="row"><span>Typical farmer (furrow, diesel)</span><b>${f(bm)} m³/ha</b></div><div class="bar" style="width:${bm/mx*100}%;background:var(--r)"></div><div class="row"><span>JalUrja (drip, solar)</span><b>${f(jm)} m³/ha</b></div><div class="bar" style="width:${jm/mx*100}%;background:var(--b)"></div>`;
+const w1=wx(1,v),a=run('b',w1,v).cum,b2=run('j',w1,v).cum,M=Math.max(a[N-1],b2[N-1],1),pl=c=>c.map((y,i)=>`${i*600/N},${190-y/M*180}`).join(' ');
+$('ch').innerHTML=`<polyline fill="none" stroke="var(--r)" stroke-width="2.5" points="${pl(a)}"/><polyline fill="none" stroke="var(--b)" stroke-width="2.5" points="${pl(b2)}"/><text x="8" y="14" fill="var(--r)" font-size="12">Farmer ${f(a[N-1])} mm</text><text x="8" y="30" fill="var(--b)" font-size="12">JalUrja ${f(b2[N-1])} mm</text><text x="500" y="198" fill="var(--m)" font-size="11">day 130</text>`;
+$('eco').innerHTML=kp('Farmer cost / ha / crop',`₹${f(farmJ)}`,`vs ₹${f(farmB)} diesel. WPC ${f(wpc*100)}% of bill`)+kp('Farmer net income / ha',`<span class="g">₹${f(incJ)}</span>`,`vs ₹${f(incB)} (after water cost)`)+kp('Operator payback',pay>0&&isFinite(pay)&&rev>om?`${f(pay,1)} <small>years</small>`:'never',`net capex ₹${f(net)}/ha; revenue ₹${f(rev)}/ha/yr`)+kp('Tariff range that works',`₹${f(beT,1)}–${f(maxT,1)}<small>/m³</small>`,`min for 5-yr payback to max the farmer beats diesel`)+kp('Govt WPC outlay / yr',`₹${f(gov/1e5,1)} <small>lakh</small>`,saved>0?`≈ ₹${f(gov/saved,1)} per m³ of water saved`:'')+kp('Cluster water saved / yr',`${f(saved/1e3)} <small>thousand m³</small>`,`${f(v.ha)} ha × ${v.seas} crops`);
+const sc=[['Dry year',{et0:5.5,rain:40}],['Your setting',{}],['Wet year',{et0:3.8,rain:250}]].map(([n,o])=>{const r=agg({...v,...o});return`<tr><td>${n}</td><td>${f(r.bI*10)}</td><td>${f(r.jI*10)}</td><td><b>${f((1-r.jI/r.bI)*100)}%</b></td><td>${f(r.bY/1000,1)} → ${f(r.jY/1000,1)}</td><td><div style="height:10px;border-radius:5px;background:var(--b);width:${Math.max(3,(1-r.jI/r.bI)*100)}%"></div></td></tr>`}).join('');
+$('sens').innerHTML=`<table style="width:100%;border-collapse:collapse;text-align:right"><tr class="l"><th style="text-align:left">Scenario</th><th>Farmer m³/ha</th><th>JalUrja m³/ha</th><th>Saving</th><th>Yield F→J (t/ha)</th><th style="width:90px"></th></tr>${sc}</table>`}
+P.forEach(p=>$(p[0]).addEventListener('input',render));['fh','fy','fw'].forEach(i=>$(i).addEventListener('input',wc));render();
+</script></body></html>

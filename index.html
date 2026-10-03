@@ -1,0 +1,98 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>JalUrja: Water Productivity as a Service</title>
+<style>
+:root{box-sizing:border-box;--bg:#f4faf2;--c:#fff;--t:#10301f;--m:#566c5f;--g:#1b7f4b;--b:#2b6cb0;--a:#b7791f;--bd:#d5e5d8;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b14;--c:#172a1f;--t:#e6f2ea;--m:#9db5a6;--g:#4cc38a;--b:#6aa9f0;--a:#e3b25a;--bd:#2a4434}}
+:root[data-theme="dark"]{--bg:#0f1b14;--c:#172a1f;--t:#e6f2ea;--m:#9db5a6;--g:#4cc38a;--b:#6aa9f0;--a:#e3b25a;--bd:#2a4434}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--t);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:880px;margin:0 auto;padding:18px}
+h1{font-size:30px;margin:6px 0 0}h2{font-size:20px;margin:30px 0 8px;color:var(--g)}h3{font-size:15px;margin:14px 0 4px}
+.tag{color:var(--m);margin:2px 0 12px}.big{font-size:18px;font-weight:600;border-left:4px solid var(--g);padding-left:12px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin:10px 0}
+.card{background:var(--c);border:1px solid var(--bd);border-radius:12px;padding:12px}
+.k{font-size:24px;font-weight:700;color:var(--g)}.l{font-size:12.5px;color:var(--m)}
+.o{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left}th{color:var(--m);font-weight:600}
+svg text{font:12px system-ui,sans-serif;fill:var(--t)}.bx{fill:var(--c);stroke-width:1.6}.ln{fill:none;stroke-width:1.8}
+.sm{font-size:13px;color:var(--m)}a{color:var(--b)}
+</style></head><body><main>
+<h1>💧 JalUrja</h1>
+<p class="tag">Water Productivity as a Service · Challenge 01: Sustainable Agriculture (Energy, Water &amp; Productivity)</p>
+<p class="big">Shared solar irrigation for smallholders, delivered as a metered service, with government support paid for verified water productivity rather than for pumping.</p>
+
+<h2>1. The problem we solve</h2>
+<p>Agriculture uses nearly 90% of India's freshwater withdrawals and employs over 40% of its workforce. Smallholders irrigate by habit or fixed schedule, often with diesel or heavily subsidised pumps. Two things go wrong: diesel makes water expensive, while solar or free power makes it nearly free, which invites over-pumping. Solar alone swaps an energy problem for a groundwater problem. JalUrja separates clean energy from unlimited water.</p>
+
+<h2>2. How it works</h2>
+<div class="grid">
+<div class="card"><h3>☀️ Shared solar hub</h3>An FPO, cooperative or local entrepreneur owns the solar pump, tank, drip network and smart meters. The farmer buys no equipment.</div>
+<div class="card"><h3>🛰️ Sense and decide</h3>Satellite (Sentinel-2), weather forecast, soil-moisture nodes and crop stage feed a FAO-56 soil-water balance. It sets <i>when</i> and <i>how much</i> to irrigate, and skips irrigation when rain is forecast.</div>
+<div class="card"><h3>📱 Voice-first advice</h3>Marathi/Hindi voice and SMS: <i>Irrigate · Wait · Rain expected</i>. Four large icons only: Water, Weather, Crop, Payment.</div>
+<div class="card"><h3>💰 Pay per metered litre</h3>UPI pay-as-you-go for water actually delivered. A proposed <b>Water Productivity Credit (WPC)</b> reduces the bill only for farms that stay within their seasonal water budget and achieve a target kg of crop per m³.</div>
+</div>
+<p class="sm">Inspiration: the EU WATER-BEE demonstration reported 21% average and up to 44% irrigation-water savings from sensor-based scheduling across 12 sites (CORDIS). JalUrja adapts this to Indian smallholder conditions by adding shared ownership, satellite-based plot intelligence that needs no sensor on every field, and an incentive linked to water productivity.</p>
+
+<h2>3. System architecture: data, energy and money flows</h2>
+<div class="card o"><svg viewBox="0 0 720 350" width="100%" style="min-width:620px" role="img" aria-label="JalUrja architecture with data, energy and money flows">
+<defs><marker id="ab" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--b)"/></marker><marker id="aa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--a)"/></marker><marker id="ag" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0L8,4L0,8z" fill="var(--g)"/></marker></defs>
+<text x="8" y="14" style="font-weight:700;fill:var(--b)">DATA</text>
+<rect class="bx" x="8" y="22" width="200" height="56" rx="8" stroke="var(--b)"/><text x="20" y="46">Sentinel-2 · weather API</text><text x="20" y="64">soil-moisture · crop stage</text>
+<rect class="bx" x="270" y="22" width="180" height="56" rx="8" stroke="var(--b)"/><text x="282" y="46" style="font-weight:700">JalUrja engine</text><text x="282" y="64">FAO-56 water budget</text>
+<rect class="bx" x="512" y="22" width="200" height="56" rx="8" stroke="var(--b)"/><text x="524" y="46">Farmer voice app / SMS</text><text x="524" y="64">Irrigate · Wait · Rain</text>
+<path class="ln" stroke="var(--b)" d="M208 50H268" marker-end="url(#ab)"/><path class="ln" stroke="var(--b)" d="M450 50H510" marker-end="url(#ab)"/>
+<text x="8" y="132" style="font-weight:700;fill:var(--a)">ENERGY + WATER</text>
+<rect class="bx" x="8" y="140" width="130" height="56" rx="8" stroke="var(--a)"/><text x="20" y="164">Solar array</text><text x="20" y="182">no diesel</text>
+<rect class="bx" x="180" y="140" width="140" height="56" rx="8" stroke="var(--a)"/><text x="192" y="164">Pump + tank</text><text x="192" y="182">borewell lift</text>
+<rect class="bx" x="362" y="140" width="170" height="56" rx="8" stroke="var(--a)"/><text x="374" y="164">Smart valve + meter</text><text x="374" y="182">drip to plots</text>
+<rect class="bx" x="574" y="140" width="138" height="56" rx="8" stroke="var(--a)"/><text x="586" y="164">Farm plots</text><text x="586" y="182">0.5–2 ha each</text>
+<path class="ln" stroke="var(--a)" d="M138 168H178" marker-end="url(#aa)"/><path class="ln" stroke="var(--a)" d="M320 168H360" marker-end="url(#aa)"/><path class="ln" stroke="var(--a)" d="M532 168H572" marker-end="url(#aa)"/>
+<path class="ln" stroke="var(--b)" stroke-dasharray="5 4" d="M390 78V138" marker-end="url(#ab)"/><text x="398" y="112">open/close</text>
+<path class="ln" stroke="var(--b)" stroke-dasharray="5 4" d="M440 138V80" marker-end="url(#ab)"/><text x="448" y="128">verified litres</text>
+<text x="8" y="250" style="font-weight:700;fill:var(--g)">MONEY</text>
+<rect class="bx" x="8" y="258" width="150" height="56" rx="8" stroke="var(--g)"/><text x="20" y="282">Farmer (UPI)</text><text x="20" y="300">pays per m³</text>
+<rect class="bx" x="270" y="258" width="180" height="56" rx="8" stroke="var(--g)"/><text x="282" y="282" style="font-weight:700">FPO / operator</text><text x="282" y="300">O&amp;M + loan repayment</text>
+<rect class="bx" x="530" y="258" width="182" height="56" rx="8" stroke="var(--g)"/><text x="542" y="282">Govt WPC fund</text><text x="542" y="300">pays on verified kg/m³</text>
+<path class="ln" stroke="var(--g)" d="M158 286H268" marker-end="url(#ag)"/><path class="ln" stroke="var(--g)" d="M530 286H452" marker-end="url(#ag)"/>
+<path class="ln" stroke="var(--g)" stroke-dasharray="5 4" d="M490 196V256" marker-end="url(#ag)"/><text x="498" y="232">meter data → WPC check</text>
+<text x="8" y="340" class="sm" style="fill:var(--m)">Blue = data · Amber = solar energy and water · Green = money. Dashed = automated signals.</text>
+</svg></div>
+
+<h2>4. Key assumptions</h2>
+<table><tr><th>Item</th><th>Assumption</th><th>To validate in pilot</th></tr>
+<tr><td>Crop / site</td><td>Tomato, Marathwada, 130-day season, potential yield 40 t/ha</td><td>Local yield records</td></tr>
+<tr><td>Baseline</td><td>Furrow irrigation, diesel pump, every 9 days, 55 mm gross, 65% efficiency (≈7,700 m³/ha)</td><td>Farmer survey of 30 farms</td></tr>
+<tr><td>JalUrja</td><td>Drip at 90% efficiency, irrigate when 70% of readily available water is used, skip if &gt;6 mm rain forecast</td><td>Meter logs</td></tr>
+<tr><td>Soil</td><td>100 mm total available water, depletion fraction 0.4</td><td>Soil test per cluster</td></tr>
+<tr><td>Energy</td><td>40 m total head, 0.073 L diesel per m³ (baseline), 0.27 kWh solar per m³</td><td>Pump test</td></tr>
+<tr><td>Costs</td><td>₹1.1 lakh/ha capex (drip + shared solar pump + tank + meters); 45% blended subsidy; ₹4/m³ tariff; 1.5 crops/yr</td><td>Vendor quotes; subsidy eligibility for FPO-owned hubs</td></tr></table>
+<p class="sm">Why it suits smallholders: no upfront cost, small pay-per-use payments, no need to understand the technology, plots of any size share one hub, and satellite coverage avoids sensors on every field.</p>
+
+<h2>5. Quantified benefit against the stated baseline</h2>
+<p class="sm">Simulated over 50 random weather seasons. Method and all inputs are in the <a href="simulator.html">interactive simulator</a> (a working software prototype).</p>
+<div class="grid">
+<div class="card"><div class="k">32%</div><div class="l">less irrigation water (26–39% range): 7,700 → 5,200 m³/ha</div></div>
+<div class="card"><div class="k">+51%</div><div class="l">water productivity: 5.1 → 7.7 kg of tomato per m³</div></div>
+<div class="card"><div class="k">−34%</div><div class="l">water per tonne: 197 → 130 m³/t</div></div>
+<div class="card"><div class="k">562 L</div><div class="l">diesel avoided per ha per crop, ≈1.5 t CO₂</div></div>
+</div>
+<div class="card o"><table><tr><th>Weather year</th><th>Water saved</th><th>Yield (farmer → JalUrja)</th><th>What the benefit is</th></tr>
+<tr><td>Dry</td><td>7%</td><td>33.4 → 40 t/ha</td><td>Yield protection (+20%)</td></tr>
+<tr><td>Normal</td><td>32%</td><td>39.1 → 40 t/ha</td><td>Water and diesel savings</td></tr>
+<tr><td>Wet</td><td>57%</td><td>40 → 40 t/ha</td><td>Avoided unnecessary irrigation</td></tr></table></div>
+<p class="sm">These are model results, not field measurements; pilot targets should be treated as estimates until validated. The diesel saving applies to off-grid or diesel-pumping farms.</p>
+
+<h2>6. Unit economics (per hectare, 50 ha cluster)</h2>
+<div class="grid">
+<div class="card"><div class="k">₹12.5k</div><div class="l">farmer water cost per crop (₹4/m³ less 40% WPC) vs ≈₹51.7k diesel baseline</div></div>
+<div class="card"><div class="k">2.9 yrs</div><div class="l">operator payback: ₹60.5k net capex, ₹31k/yr revenue, ₹10k/yr O&amp;M</div></div>
+<div class="card"><div class="k">₹6.2 lakh/yr</div><div class="l">government WPC outlay for 50 ha, ≈₹3.3 per m³ of water saved</div></div>
+</div>
+<p class="sm">Payback depends on the capital subsidy: without it, it is well over five years. WPC mainly works as a water-budget discipline tool: against diesel the farmer already saves money, so WPC matters most where power is free or heavily subsidised. The 40% rate is a proposed pilot policy, not an existing government rate.</p>
+
+<h2>7. Deployment and scale-up</h2>
+<div class="card o"><table><tr><th>Phase</th><th>Scope</th><th>Goal</th></tr>
+<tr><td>1 · 0–6 months</td><td>1 hub, 50 ha, ~50 farmers, 1 FPO, tomato, Marathwada</td><td>Measure real baseline, savings, tariff acceptance</td></tr>
+<tr><td>2 · 6–18 months</td><td>500+ ha, 5+ FPOs, UPI auto-billing, WPC verification pilot with the state agriculture department</td><td>Prove operator economics and subsidy mechanism</td></tr>
+<tr><td>3 · 18–36 months</td><td>Multiple districts; add potato in western Uttar Pradesh</td><td>Replicate through FPO and agri-entrepreneur networks</td></tr>
+<tr><td>Extension</td><td>Solar cold storage and aggregation on the same hubs</td><td>Address post-harvest loss (15–20%)</td></tr></table></div>
+<p class="sm"><b>Target farmer:</b> 0.5–2 ha, FPO member, diesel or unreliable power, limited literacy. <b>Operators:</b> FPOs, cooperatives, local agri-entrepreneurs. <b>More:</b> <a href="simulator.html">simulator</a> · <a href="wireframes.html">UX wireframes</a> · <a href="design.html">data model and service blueprint</a>.</p>
+</main></body></html>
